@@ -49,7 +49,7 @@ fun main(args: Array<String>) {
         when (it.constructor) {
             TdApi.UpdateNewMessage.CONSTRUCTOR -> {
                 val message = it as TdApi.UpdateNewMessage
-                println(it)
+                println(message)
             }
 
         }
