@@ -4,8 +4,6 @@ plugins {
 }
 
 sourceCompatibility = 1.8
-group = "com.sapelkinav"
-version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
