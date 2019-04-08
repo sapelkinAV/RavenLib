@@ -21,6 +21,7 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation 'com.github.jitpack:gradle-simple:1.0'
     modules project(":ravenlib-logic")
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
