@@ -5,6 +5,7 @@ import com.sapelkinav.ravenlib.client.TdlibParameters
 import com.sapelkinav.ravenlib.exception.TelegramException
 import com.sapelkinav.ravenlib.handlers.AuthorizationHandler
 import com.sapelkinav.ravenlib.handlers.UpdatesHandler
+import com.sapelkinav.ravenlib.model.chat.Chat
 import com.sapelkinav.ravenlib.model.chat.ChatRepository
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
@@ -47,7 +48,7 @@ class RavenLib (val tdlibParameters: TdlibParameters,
         defaultErrorHandler,
         defaultErrorHandler
     )
-    val authorizationHandler = AuthorizationHandler(
+    private val authorizationHandler = AuthorizationHandler(
         client,
         tdlibParameters,
         authorizationEvents,
@@ -57,12 +58,27 @@ class RavenLib (val tdlibParameters: TdlibParameters,
     )
 
     val ravenClient = RavenClient(client)
-    val chatRepository = ChatRepository(ravenClient)
+    private val chatRepository = ChatRepository(ravenClient)
 
     override fun close() {
         ravenClient.tdCall(TdApi.Close()) {}
     }
 
+    fun getChats() :  List<Chat> {
+        return chatRepository.getChatList()
+    }
+
+    fun getSupergroupChats() : List<Chat> {
+        return chatRepository.getSecretChats()
+    }
+
+    fun getBasicGroupChats() : List<Chat> {
+        return chatRepository.getBasicGroupChats()
+    }
+
+    fun getPrivateChats() : List<Chat> {
+        return chatRepository.getPrivateChats()
+    }
 
 
 }

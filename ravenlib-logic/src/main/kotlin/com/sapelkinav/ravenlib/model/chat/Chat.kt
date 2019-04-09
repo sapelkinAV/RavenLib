@@ -30,11 +30,10 @@ class Chat(
         tdapiChat.clientData
     ) {
 
-    private val LIMIT: Int = 20
     private val AMOUNT_OF_CHATS_PER_REQUEST: Int = 10
 
     fun getMessages(
-        limit: Int = LIMIT,
+        limit: Long = Long.MAX_VALUE,
         filter: TdApi.SearchMessagesFilter? = null,
         query: String = "",
         senderId: Int = 0,
@@ -65,7 +64,7 @@ class Chat(
             if (resultMessages.size + tdMessages.size > limit) {
                 val allowedElementsCount = limit - resultMessages.size
                 resultMessages.addAll(
-                    tdMessages.subList(0, allowedElementsCount)
+                    tdMessages.subList(0, allowedElementsCount.toInt())
                 )
             } else {
                 resultMessages.addAll(tdMessages)
@@ -77,8 +76,9 @@ class Chat(
         return resultMessages
     }
 
+
     fun getAudioMessages(
-        limit: Int = 20,
+        limit: Long = 20,
         query: String = "",
         senderId: Int = 0
     ): List<AudioMessage> {
@@ -86,7 +86,7 @@ class Chat(
     }
 
     fun getPhotoMessages(
-        limit: Int = 20,
+        limit: Long = 20,
         query: String = "",
         senderId: Int = 0
     ): List<TdApi.MessagePhoto> {
@@ -98,61 +98,61 @@ class Chat(
         ).map { it.content as TdApi.MessagePhoto }
     }
 
-    fun getAnimationMessages(limit: Int = 20, query: String = "", senderId: Int): List<AnimationMessage> {
+    fun getAnimationMessages(limit: Long = 20, query: String = "", senderId: Int): List<AnimationMessage> {
         return getMessages(limit, TdApi.SearchMessagesFilterAnimation(), query, senderId).map { AnimationMessage(it) }
     }
 
-    fun getDocumentMessages(limit: Int = 20, query: String = "", senderId: Int): List<DocumentMessage> {
+    fun getDocumentMessages(limit: Long = 20, query: String = "", senderId: Int): List<DocumentMessage> {
         return getMessages(limit, TdApi.SearchMessagesFilterDocument(), query, senderId).map { DocumentMessage(it) }
     }
 
-    fun getVideoMessages(limit: Int = 20, query: String = "", senderId: Int): List<VideoMessage> {
+    fun getVideoMessages(limit: Long = 20, query: String = "", senderId: Int): List<VideoMessage> {
         return getMessages(limit, TdApi.SearchMessagesFilterVideo(), query, senderId).map {
             VideoMessage(it)
         }
     }
 
-    fun getVoiceNoteMessages(limit: Int = 20, query: String = "", senderId: Int): List<VoiceNoteMessage> {
+    fun getVoiceNoteMessages(limit: Long = 20, query: String = "", senderId: Int): List<VoiceNoteMessage> {
         return getMessages(limit, TdApi.SearchMessagesFilterVoiceNote(), query, senderId).map { VoiceNoteMessage(it) }
     }
 
-    fun getPhotoAndVideoMessages(limit: Int = 20, query: String = "", senderId: Int): List<Message> {
+    fun getPhotoAndVideoMessages(limit: Long = 20, query: String = "", senderId: Int): List<Message> {
         return getMessages(limit, TdApi.SearchMessagesFilterPhotoAndVideo(), query, senderId).map { Message(it) }
     }
 
-    fun getUrlMessages(limit: Int = 20, query: String = "", senderId: Int): List<TextMessage> {
+    fun getUrlMessages(limit: Long = 20, query: String = "", senderId: Int): List<TextMessage> {
         return getMessages(limit, TdApi.SearchMessagesFilterUrl(), query, senderId).map { TextMessage(it) }
     }
 
-    fun getChatPhotoMessages(limit: Int = 20, query: String = "", senderId: Int): List<PhotoMessage> {
+    fun getChatPhotoMessages(limit: Long = 20, query: String = "", senderId: Int): List<PhotoMessage> {
         return getMessages(limit, TdApi.SearchMessagesFilterChatPhoto(), query, senderId).map { PhotoMessage(it) }
     }
 
-    fun getCallMessages(limit: Int = 20, query: String = "", senderId: Int): List<CallMessage> {
+    fun getCallMessages(limit: Long = 20, query: String = "", senderId: Int): List<CallMessage> {
         return getMessages(limit, TdApi.SearchMessagesFilterCall(), query, senderId).map { CallMessage(it) }
     }
 
-    fun getMissedCallMessages(limit: Int = 20, query: String = "", senderId: Int): List<CallMessage> {
+    fun getMissedCallMessages(limit: Long = 20, query: String = "", senderId: Int): List<CallMessage> {
         return getMessages(limit, TdApi.SearchMessagesFilterMissedCall(), query, senderId).map { CallMessage(it) }
     }
 
-    fun getVideoNoteMessages(limit: Int = 20, query: String = "", senderId: Int): List<VideoNoteMessage> {
+    fun getVideoNoteMessages(limit: Long = 20, query: String = "", senderId: Int): List<VideoNoteMessage> {
         return getMessages(limit, TdApi.SearchMessagesFilterVideoNote(), query, senderId).map { VideoNoteMessage(it) }
     }
 
-    fun getVoiceAndVideoNoteMessages(limit: Int = 20, query: String = "", senderId: Int): List<Message> {
+    fun getVoiceAndVideoNoteMessages(limit: Long = 20, query: String = "", senderId: Int): List<Message> {
         return getMessages(limit, TdApi.SearchMessagesFilterVoiceAndVideoNote(), query, senderId).map { Message(it) }
     }
 
-    fun getMentionMessages(limit: Int = 20, query: String = "", senderId: Int): List<Message> {
+    fun getMentionMessages(limit: Long = 20, query: String = "", senderId: Int): List<Message> {
         return getMessages(limit, TdApi.SearchMessagesFilterMention(), query, senderId).map { Message(it) }
     }
 
-    fun getUnreadMentionMessages(limit: Int = 20, query: String = "", senderId: Int): List<Message> {
+    fun getUnreadMentionMessages(limit: Long = 20, query: String = "", senderId: Int): List<Message> {
         return getMessages(limit, TdApi.SearchMessagesFilterUnreadMention(), query, senderId).map { Message(it) }
     }
 
-    fun getMessagesWithoutFilter(limit: Int = 20, query: String = "", senderId: Int = 0): List<Message> {
+    fun getMessagesWithoutFilter(limit: Long = 20, query: String = "", senderId: Int = 0): List<Message> {
         return getMessages(limit, TdApi.SearchMessagesFilterEmpty(), query, senderId).map { Message(it) }
     }
 
