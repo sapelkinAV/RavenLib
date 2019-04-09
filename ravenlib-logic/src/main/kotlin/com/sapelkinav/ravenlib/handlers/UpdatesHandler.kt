@@ -1,26 +1,29 @@
 package com.sapelkinav.ravenlib.handlers
 
-import io.reactivex.subjects.BehaviorSubject
+import com.sapelkinav.ravenlib.exception.TelegramException
 import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import org.drinkless.tdlib.Client
 import org.drinkless.tdlib.TdApi
 
 
 class UpdatesHandler(val tdEvents : PublishSubject<TdApi.Object>,
-                     val authorizationEvents: BehaviorSubject<TdApi.Object>) : Client.ResultHandler {
+                     val authorizationEvents: Subject<TdApi.Object>,
+                     val errorEvents: Subject<Throwable>) : Client.ResultHandler {
 
 
-
-
-    override fun onResult(tdEvent: TdApi.Object?){
+    override fun onResult(tdEvent: TdApi.Object?) {
         if (tdEvent != null) {
 
             when (tdEvent.constructor){
                 TdApi.UpdateAuthorizationState.CONSTRUCTOR -> authorizationEvents.onNext(tdEvent)
+                TdApi.Error.CONSTRUCTOR -> handleError(tdEvent)
                 else -> tdEvents.onNext(tdEvent)
             }
-
         }
+
+
+
 //        if (tdEvent != null) {
 //            when(tdEvent.constructor) {
 //
@@ -235,5 +238,9 @@ class UpdatesHandler(val tdEvents : PublishSubject<TdApi.Object>,
 //                else -> println("ATTENTION Unsupported update event. Recieved: $tdEvent")
 //            }
 //        }
+    }
+    private fun handleError(tdErrorEvent: TdApi.Object) {
+        val error = tdErrorEvent as TdApi.Error
+        errorEvents.onNext(TelegramException(error.code, error.message))
     }
 }

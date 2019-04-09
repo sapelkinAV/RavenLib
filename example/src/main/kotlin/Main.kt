@@ -1,7 +1,7 @@
 package com.sapelkinav
 
 import com.beust.klaxon.Klaxon
-import com.sapelkinav.com.sapelkinav.revenlib.entities.Config
+import com.sapelkinav.revenlib.entities.Config
 import com.sapelkinav.ravenlib.RavenLib
 import com.sapelkinav.ravenlib.client.TdlibParameters
 import com.sapelkinav.ravenlib.model.chat.ChatRepository
@@ -20,17 +20,15 @@ fun main(args: Array<String>) {
 
     val tdlibParameters = TdlibParameters(
         apiId = config.appId,
-        apiHash = config.appHash
-    ).apply {
+        apiHash = config.appHash,
         databaseDirectory = "./${config.phone}"
-    }
+    )
 
     val ravenLib = RavenLib(
         //Parameters
         tdlibParameters,
         //Function to get the phone
         config.phone,
-
         //Function to get the code
         {
             println("Enter the code")
@@ -40,22 +38,30 @@ fun main(args: Array<String>) {
 
     )
 
-    val client = ravenLib.ravenClient
-    val chatRepository = ChatRepository(client)
-    val superGroups = chatRepository.getSuperGroupChats()
-    val group = chatRepository.searchPublicChat("archiveOfAllMusic")
-    val messages = group.getAudioMessages(limit = 51)
-    ravenLib.tdEvents.subscribe {
-        when (it.constructor) {
-            TdApi.UpdateNewMessage.CONSTRUCTOR -> {
-                val message = it as TdApi.UpdateNewMessage
-                println(message)
+    ravenLib.authorizationEvents
+        //Wait until client will be authorised
+        //When it authorization is complete - make business logic
+        .subscribe { authEvent ->
+            val updateAuthorizationState = authEvent as TdApi.UpdateAuthorizationState
+            if (updateAuthorizationState.authorizationState.constructor == TdApi.AuthorizationStateReady.CONSTRUCTOR) {
+                val client = ravenLib.ravenClient
+                val chatRepository = ChatRepository(client)
+                val superGroups = chatRepository.getSuperGroupChats()
+                val group = chatRepository.searchPublicChat("archiveOfAllMusic")
+                val messages = group.getAudioMessages(limit = 51)
+                ravenLib.tdEvents.subscribe {
+                    when (it.constructor) {
+                        TdApi.UpdateNewMessage.CONSTRUCTOR -> {
+                            val message = it as TdApi.UpdateNewMessage
+                            println(message)
+                        }
+
+                    }
+                }
+                println("Count of audios is ${messages.size}")
+                ravenLib.close()
             }
-
         }
-    }
-
-    println("Count of audios is ${messages.size}")
 
 
 }

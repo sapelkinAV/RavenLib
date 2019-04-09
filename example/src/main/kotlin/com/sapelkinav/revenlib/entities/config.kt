@@ -1,4 +1,4 @@
-package com.sapelkinav.com.sapelkinav.revenlib.entities
+package com.sapelkinav.revenlib.entities
 
 
 data class Config(

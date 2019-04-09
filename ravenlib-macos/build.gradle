@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
+
 sourceCompatibility = 1.8
 
 repositories {
@@ -26,10 +27,15 @@ compileTestKotlin {
 }
 
 jar {
+//    // pack your other two modules
+//    from {
+//        configurations.modules.collect { it.isDirectory() ? it : zipTree(it) }
+//    }
 
     // pack all dependencies in the project
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
 build.dependsOn jar

@@ -9,67 +9,67 @@ data class TdlibParameters(
         /**
          * Application identifier for Telegram API access, which can be obtained at https://my.telegram.org.
          */
-        var apiId: Int = 0,
+        val apiId: Int = 0,
         /**
          * Application identifier hash for Telegram API access, which can be obtained at https://my.telegram.org.
          */
-        var apiHash: String = "",
+        val apiHash: String = "",
         /**
          * The path to the directory for the persistent database; if empty, the current working directory will be used.
          */
-        var databaseDirectory: String = "tdlib",
+        val databaseDirectory: String = "tdlib",
         /**
          * The path to the directory for storing files; if empty, databaseDirectory will be used.
          */
-        var filesDirectory: String = "",
+        val filesDirectory: String = "",
 
         /**
          * If set to true, old files will automatically be deleted.
          */
-        var enableStorageOptimizer: Boolean = true,
+        val enableStorageOptimizer: Boolean = true,
 
         /**
          * If set to true, information about downloaded and uploaded files will be saved between application restarts.
          */
-        var useFileDatabase: Boolean = true,
+        val useFileDatabase: Boolean = true,
         /**
          * If set to true, the library will maintain a cache of users, basic groups, superGroups, channels and secret chats. Implies useFileDatabase.
          */
-        var useChatInfoDatabase: Boolean = true,
+        val useChatInfoDatabase: Boolean = true,
         /**
          * If set to true, the library will maintain a cache of chats and messages. Implies useChatInfoDatabase.
          */
-        var useMessageDatabase: Boolean = true,
+        val useMessageDatabase: Boolean = true,
         /**
          * If set to true, support for secret chats will be enabled.
          */
-        var useSecretChats: Boolean = true,
+        val useSecretChats: Boolean = true,
 
         /**
          * IETF language tag of the user's operating system language; must be non-empty.
          */
-        var systemLanguageCode: String = "en",
+        val systemLanguageCode: String = "en",
         /**
          * Model of the device the application is being run on; must be non-empty.
          */
-        var deviceModel: String = "Desktop",
+        val deviceModel: String = "Desktop",
         /**
          * Version of the operating system the application is being run on; must be non-empty.
          */
-        var systemVersion: String = "Unknown",
+        val systemVersion: String = "Unknown",
         /**
          * Application version; must be non-empty.
          */
-        var applicationVersion: String = "1.0",
+        val applicationVersion: String = "1.0",
 
         /**
          * If set to true, original file names will be ignored. Otherwise, downloaded files will be saved under names as close as possible to the original name.
          */
-        var ignoreFileNames: Boolean = false,
+        val ignoreFileNames: Boolean = false,
         /**
          * If set to true, the Telegram test environment will be used instead of the production environment.
          */
-        var useTestDc: Boolean = false
+        val useTestDc: Boolean = false
 )
     {
 

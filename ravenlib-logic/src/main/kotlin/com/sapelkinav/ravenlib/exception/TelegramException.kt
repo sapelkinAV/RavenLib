@@ -1,5 +1,5 @@
 package com.sapelkinav.ravenlib.exception
 
-class TelegramException(val code:Int,
+open class TelegramException(val code:Int,
                         errorMessage:String)
     : RuntimeException(errorMessage)
