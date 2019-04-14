@@ -1,10 +1,9 @@
 package com.sapelkinav
 
 import com.beust.klaxon.Klaxon
-import com.sapelkinav.revenlib.entities.Config
 import com.sapelkinav.ravenlib.RavenLib
 import com.sapelkinav.ravenlib.client.TdlibParameters
-import com.sapelkinav.ravenlib.model.chat.ChatRepository
+import com.sapelkinav.revenlib.entities.Config
 import org.drinkless.tdlib.TdApi
 import java.io.File
 
@@ -13,7 +12,7 @@ import java.io.File
 //val PHONE = System.getenv("PHONE")
 
 
-fun main(args: Array<String>) {
+fun main() {
 
     val config: Config = Klaxon()
         .parse<Config>(File("./config.json"))!!
@@ -38,31 +37,29 @@ fun main(args: Array<String>) {
 
     )
 
-    ravenLib.authorizationEvents
-        //Wait until client will be authorised
-        //When it authorization is complete - make business logic
-        .subscribe { authEvent ->
-            val updateAuthorizationState = authEvent as TdApi.UpdateAuthorizationState
-            if (updateAuthorizationState.authorizationState.constructor == TdApi.AuthorizationStateReady.CONSTRUCTOR) {
-                val client = ravenLib.ravenClient
-                val chatRepository = ChatRepository(client)
-                val superGroups = chatRepository.getSuperGroupChats()
-                val group = chatRepository.searchPublicChat("archiveOfAllMusic")
-                val messages = group.getAudioMessages(limit = 51)
-                ravenLib.tdEvents.subscribe {
-                    when (it.constructor) {
-                        TdApi.UpdateNewMessage.CONSTRUCTOR -> {
-                            val message = it as TdApi.UpdateNewMessage
-                            println(message)
-                        }
+    ravenLib.errorEvents.subscribe {
+        println("Beda prikluchilas ${it.printStackTrace()}")
+    }
 
-                    }
-                }
-                println("Count of audios is ${messages.size}")
-                ravenLib.close()
-            }
-        }
+
+    val client = ravenLib.ravenClient
+    val chatRepository = ravenLib.chatRepository
+
+    val allrockChannel = chatRepository.searchPublicChat("AllRock")
+
+    val ROOOOOOOOK = allrockChannel.getMessagesAsync(filter = TdApi.SearchMessagesFilterAudio())
+        .toList()
+        .blockingGet()
+
+    ROOOOOOOOK.forEach {
+        println(it)
+    }
 
 
 }
+
+
+
+
+
 

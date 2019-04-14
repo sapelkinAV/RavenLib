@@ -3,10 +3,12 @@ package com.sapelkinav.ravenlib.model.chat
 import com.sapelkinav.ravenlib.client.RavenClient
 import com.sapelkinav.ravenlib.exception.TelegramException
 import com.sapelkinav.ravenlib.model.message.*
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import org.drinkless.tdlib.TdApi
 
 
-class Chat(
+open class Chat(
     tdapiChat: TdApi.Chat,
     private val ravenClient: RavenClient
     //Amount of chats that will return per getMessages call. 0 - 100 .
@@ -30,7 +32,7 @@ class Chat(
         tdapiChat.clientData
     ) {
 
-    private val AMOUNT_OF_CHATS_PER_REQUEST: Int = 10
+    private val AMOUNT_OF_CHATS_PER_REQUEST: Int = 100
 
     fun getMessages(
         limit: Long = Long.MAX_VALUE,
@@ -74,6 +76,56 @@ class Chat(
         } while (tdMessages.isNotEmpty() && resultMessages.size < limit)
 
         return resultMessages
+    }
+
+    fun getMessagesAsync(
+        limit: Long = Long.MAX_VALUE,
+        query: String = "",
+        filter: TdApi.SearchMessagesFilter? = null,
+        senderId: Int = 0
+    ): Flowable<Message> {
+
+        var messageCount = 0L
+        var fromMessageId = 0L
+
+        return Flowable.create({ emitter ->
+
+            do {
+                val tdMessages = ravenClient.tdCall(TdApi.SearchChatMessages(
+                    id,
+                    query,
+                    senderId,
+                    fromMessageId,
+                    0,
+                    AMOUNT_OF_CHATS_PER_REQUEST,
+                    filter
+                ), { tdObject ->
+                    if (tdObject.constructor == TdApi.Error.CONSTRUCTOR) {
+                        val error = tdObject as TdApi.Error
+                        emitter.onError(TelegramException(error.code, error.message))
+                    }
+                    return@tdCall (tdObject as TdApi.Messages).messages.toList()
+                }) { error ->
+                    emitter.onError(error)
+                }
+
+                val messagesToEmmit = if (messageCount + tdMessages.size > limit) {
+                    val allowedElementsCount = limit - messageCount
+                    tdMessages.subList(0, allowedElementsCount.toInt())
+                } else {
+                    tdMessages
+                }.map { Message(it) }
+
+                fromMessageId = if (tdMessages.isNotEmpty()) tdMessages.last().id else Long.MAX_VALUE
+                messageCount += tdMessages.size
+
+                messagesToEmmit.forEach(emitter::onNext)
+            } while (messageCount < limit && tdMessages.isNotEmpty())
+
+            emitter.onComplete()
+
+        }, BackpressureStrategy.BUFFER)
+
     }
 
 
@@ -155,5 +207,6 @@ class Chat(
     fun getMessagesWithoutFilter(limit: Long = 20, query: String = "", senderId: Int = 0): List<Message> {
         return getMessages(limit, TdApi.SearchMessagesFilterEmpty(), query, senderId).map { Message(it) }
     }
+
 
 }

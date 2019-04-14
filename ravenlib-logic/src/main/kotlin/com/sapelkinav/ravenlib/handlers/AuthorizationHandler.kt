@@ -2,6 +2,8 @@ package com.sapelkinav.ravenlib.handlers
 
 import com.sapelkinav.ravenlib.client.TdlibParameters
 import com.sapelkinav.ravenlib.exception.AuthorisationException
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.ReplaySubject
 import io.reactivex.subjects.Subject
 import org.drinkless.tdlib.Client
 import org.drinkless.tdlib.TdApi
@@ -10,7 +12,7 @@ import org.drinkless.tdlib.TdApi
 class AuthorizationHandler(
     val client: Client,
     val tdlibParameters: TdlibParameters,
-    val authorizationEvents: Subject<TdApi.Object>,
+    val authorizationEvents: ReplaySubject<TdApi.Object>,
     val phone: String,
     val getCode: () -> String,
     val getPassword: () -> String

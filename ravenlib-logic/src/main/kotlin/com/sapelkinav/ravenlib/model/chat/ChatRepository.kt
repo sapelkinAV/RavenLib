@@ -2,11 +2,15 @@ package com.sapelkinav.ravenlib.model.chat
 
 import com.sapelkinav.ravenlib.client.RavenClient
 import com.sapelkinav.ravenlib.exception.TelegramException
+import io.reactivex.subjects.Subject
 import org.drinkless.tdlib.TdApi
 import java.util.stream.Collectors
 import kotlin.streams.toList
 
-class ChatRepository(private val ravenClient: RavenClient) {
+class ChatRepository(
+    private val ravenClient: RavenClient,
+    private val  errorEvents: Subject<Throwable>
+) {
 
 
     fun getChatList(limit: Int = 200): List<Chat> {
@@ -25,7 +29,7 @@ class ChatRepository(private val ravenClient: RavenClient) {
                         ravenClient.tdCall(TdApi.GetChat(chatId), {
                             it as TdApi.Chat
                         }) {
-                            it.printStackTrace()
+                            errorEvents.onNext(it)
                         }
                     }.collect(Collectors.toList())
             )
@@ -49,9 +53,11 @@ class ChatRepository(private val ravenClient: RavenClient) {
             }.toList()
     }
 
-    fun getSuperGroupChats(limit: Int = 200): List<Chat> {
+    fun getSuperGroupChats(limit: Int = 200): List<SupergroupChat> {
         return getChatList(limit).stream().filter { chat ->
             chat.type is TdApi.ChatTypeSupergroup
+        }.map {
+            SupergroupChat(it, ravenClient)
         }.toList()
     }
 
@@ -71,7 +77,7 @@ class ChatRepository(private val ravenClient: RavenClient) {
         return ravenClient.tdCall(TdApi.SearchPublicChat(supergroupTitle)) {
             if (it.constructor == TdApi.Error.CONSTRUCTOR) {
                 val error = it as TdApi.Error
-                throw TelegramException(error.code, error.message)
+                 errorEvents.onNext(TelegramException(error.code, error.message))
             }
             return@tdCall Chat(it as TdApi.Chat, ravenClient)
         }
