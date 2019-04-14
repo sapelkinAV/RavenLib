@@ -21,9 +21,9 @@ public final class Client implements Runnable {
      */
     public interface ResultHandler {
         /**
-         * Callback called on result of query to TDLib or incoming org.sapelkinav.client.handlers from TDLib.
+         * Callback called on result of query to TDLib or incoming update from TDLib.
          *
-         * @param object Result of query or org.sapelkinav.client.handlers of type TdApi.Update about new events.
+         * @param object Result of query or update of type TdApi.Update about new events.
          */
         void onResult(TdApi.Object object);
     }
@@ -107,7 +107,7 @@ public final class Client implements Runnable {
      * Replaces handler for incoming updates from the TDLib.
      *
      * @param updatesHandler   Handler with onResult method which will be called for every incoming
-     *                         org.sapelkinav.client.handlers from the TDLib.
+     *                         update from the TDLib.
      * @param exceptionHandler Exception handler with onException method which will be called on
      *                         exception thrown from updatesHandler, if it is null, defaultExceptionHandler will be invoked.
      */
@@ -119,7 +119,7 @@ public final class Client implements Runnable {
      * Replaces handler for incoming updates from the TDLib. Sets empty ExceptionHandler.
      *
      * @param updatesHandler Handler with onResult method which will be called for every incoming
-     *                       org.sapelkinav.client.handlers from the TDLib.
+     *                       update from the TDLib.
      */
     public void setUpdatesHandler(ResultHandler updatesHandler) {
         setUpdatesHandler(updatesHandler, null);
@@ -130,7 +130,7 @@ public final class Client implements Runnable {
      *
      * @param defaultExceptionHandler Default exception handler. If null Exceptions are ignored.
      */
-    public void setDefaultExceptionHandler(Client.ExceptionHandler defaultExceptionHandler) {
+    public void setDefaultExceptionHandler(ExceptionHandler defaultExceptionHandler) {
         this.defaultExceptionHandler = defaultExceptionHandler;
     }
 
@@ -233,7 +233,7 @@ public final class Client implements Runnable {
         }
         Handler handler;
         if (id == 0) {
-            // org.sapelkinav.client.handlers handler stays forever
+            // update handler stays forever
             handler = handlers.get(id);
         } else {
             handler = handlers.remove(id);
