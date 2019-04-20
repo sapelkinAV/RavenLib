@@ -10,11 +10,10 @@ import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.Log;
 import org.drinkless.tdlib.TdApi;
 import org.scijava.nativelib.NativeLoader;
-import utils.NativeUtils;
 
+import java.io.BufferedReader;
 import java.io.IOError;
 import java.io.IOException;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.NavigableSet;
 import java.util.TreeSet;
@@ -493,16 +492,6 @@ public final class Example {
                     synchronized (chat) {
                         chat.draftMessage = updateChat.draftMessage;
                         setChatOrder(chat, updateChat.order);
-                    }
-                    break;
-                }
-                case TdApi.UpdateNotificationSettings.CONSTRUCTOR: {
-                    TdApi.UpdateNotificationSettings update = (TdApi.UpdateNotificationSettings) object;
-                    if (update.scope instanceof TdApi.NotificationSettingsScopeChat) {
-                        TdApi.Chat chat = chats.get(((TdApi.NotificationSettingsScopeChat) update.scope).chatId);
-                        synchronized (chat) {
-                            chat.notificationSettings = update.notificationSettings;
-                        }
                     }
                     break;
                 }

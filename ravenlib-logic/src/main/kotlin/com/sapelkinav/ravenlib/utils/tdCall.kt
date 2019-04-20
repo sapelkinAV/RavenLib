@@ -5,20 +5,20 @@ import org.drinkless.tdlib.Client
 import org.drinkless.tdlib.TdApi
 
 
-fun <T> Client.tdCall(query:TdApi.Function, handler:(TdApi.Object)->T) :T{
-    return tdCall(query,handler) { exception->
+fun <T> Client.tdCall(query: TdApi.Function, handler: (TdApi.Object) -> T): T {
+    return tdCall(query, handler) { exception ->
         exception.printStackTrace()
     }
 }
 
-fun <T> Client.tdCall(query:TdApi.Function, handler:(TdApi.Object)->T, exceptionHandler:(Throwable)->Unit) :T{
+fun <T> Client.tdCall(query: TdApi.Function, handler: (TdApi.Object) -> T, exceptionHandler: (Throwable) -> Unit): T {
     val resultObservable: BehaviorSubject<T> = BehaviorSubject.create()
 
-    send(query,{
-        val result = handler(it)
+    send(query, { tdEvent ->
+        val result = handler(tdEvent)
         resultObservable.onNext(result)
-    },
-            { exception->
+        resultObservable.onComplete()
+    }, { exception ->
         exceptionHandler(exception)
     })
 

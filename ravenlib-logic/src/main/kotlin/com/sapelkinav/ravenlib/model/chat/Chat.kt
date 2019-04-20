@@ -2,7 +2,7 @@ package com.sapelkinav.ravenlib.model.chat
 
 import com.sapelkinav.ravenlib.client.RavenClient
 import com.sapelkinav.ravenlib.exception.TelegramException
-import com.sapelkinav.ravenlib.model.message.*
+import com.sapelkinav.ravenlib.model.message.Message
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import org.drinkless.tdlib.TdApi
@@ -35,64 +35,24 @@ open class Chat(
         tdapiChat.clientData
     ) {
 
-    private val AMOUNT_OF_CHATS_PER_REQUEST: Int = 100
-
     fun getMessages(
         limit: Long = Long.MAX_VALUE,
-        filter: TdApi.SearchMessagesFilter? = null,
+        countOfMessagesPerRequest: Int = 20,
         query: String = "",
-        senderId: Int = 0,
-        startingFromMessageId: Long = 0L
-    ): List<TdApi.Message> {
-        val resultMessages = ArrayList<TdApi.Message>()
-        var fromMessageId = startingFromMessageId
-        do {
-            val tdMessages = ravenClient.tdCall(TdApi.SearchChatMessages(
-                id,
-                query,
-                senderId,
-                fromMessageId,
-                0,
-                AMOUNT_OF_CHATS_PER_REQUEST,
-                filter
-            ),
-                { tdObject ->
-                    if (tdObject.constructor == TdApi.Error.CONSTRUCTOR) {
-                        val error = tdObject as TdApi.Error
-                        throw TelegramException(error.code, error.message)
-                    }
-                    return@tdCall (tdObject as TdApi.Messages).messages.toList()
-                }
-
-            ) { it.printStackTrace() }
-
-            if (resultMessages.size + tdMessages.size > limit) {
-                val allowedElementsCount = limit - resultMessages.size
-                resultMessages.addAll(
-                    tdMessages.subList(0, allowedElementsCount.toInt())
-                )
-            } else {
-                resultMessages.addAll(tdMessages)
-            }
-
-            fromMessageId = tdMessages.last().id
-        } while (tdMessages.isNotEmpty() && resultMessages.size < limit)
-
-        return resultMessages
-    }
-
-    fun getMessagesAsync(
-        limit: Long = Long.MAX_VALUE,
-        query: String = "",
-        filter: TdApi.SearchMessagesFilter? = null,
+        // tdlib search filter
+        messageTypeFilter: TdApi.SearchMessagesFilter? = null,
+        // message filter
+        filter: (Message) -> Boolean = { true },
+        // condition of instant search cancellation
+        cancellationFilter: (Message) -> Boolean = { true },
         senderId: Int = 0
     ): Flowable<Message> {
 
         var messageCount = 0L
         var fromMessageId = 0L
+        var isSearchMustBeCanceled = false
 
         return Flowable.create({ emitter ->
-
             do {
                 val tdMessages = ravenClient.tdCall(TdApi.SearchChatMessages(
                     id,
@@ -100,8 +60,8 @@ open class Chat(
                     senderId,
                     fromMessageId,
                     0,
-                    AMOUNT_OF_CHATS_PER_REQUEST,
-                    filter
+                    countOfMessagesPerRequest,
+                    messageTypeFilter
                 ), { tdObject ->
                     if (tdObject.constructor == TdApi.Error.CONSTRUCTOR) {
                         val error = tdObject as TdApi.Error
@@ -117,13 +77,22 @@ open class Chat(
                     tdMessages.subList(0, allowedElementsCount.toInt())
                 } else {
                     tdMessages
-                }.map { Message(it) }
+                }.map(this::toRavenMessage)
 
                 fromMessageId = if (tdMessages.isNotEmpty()) tdMessages.last().id else Long.MAX_VALUE
                 messageCount += tdMessages.size
 
-                messagesToEmmit.forEach(emitter::onNext)
-            } while (messageCount < limit && tdMessages.isNotEmpty())
+                messagesToEmmit
+                    .filter(filter)
+                    .forEach { message ->
+                        if (!cancellationFilter(message)) {
+                            isSearchMustBeCanceled = true
+                            return@forEach
+                        }
+                        emitter.onNext(message)
+                    }
+
+            } while (messageCount < limit && tdMessages.isNotEmpty() && !isSearchMustBeCanceled)
 
             emitter.onComplete()
 
@@ -131,85 +100,48 @@ open class Chat(
 
     }
 
-
-    fun getAudioMessages(
-        limit: Long = 20,
-        query: String = "",
-        senderId: Int = 0
-    ): List<AudioMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterAudio(), query, senderId).map { AudioMessage(it) }
-    }
-
-    fun getPhotoMessages(
-        limit: Long = 20,
-        query: String = "",
-        senderId: Int = 0
-    ): List<TdApi.MessagePhoto> {
-        return getMessages(
-            limit,
-            TdApi.SearchMessagesFilterPhoto(),
-            query,
-            senderId
-        ).map { it.content as TdApi.MessagePhoto }
-    }
-
-    fun getAnimationMessages(limit: Long = 20, query: String = "", senderId: Int): List<AnimationMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterAnimation(), query, senderId).map { AnimationMessage(it) }
-    }
-
-    fun getDocumentMessages(limit: Long = 20, query: String = "", senderId: Int): List<DocumentMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterDocument(), query, senderId).map { DocumentMessage(it) }
-    }
-
-    fun getVideoMessages(limit: Long = 20, query: String = "", senderId: Int): List<VideoMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterVideo(), query, senderId).map {
-            VideoMessage(it)
+    private fun toRavenMessage(message: TdApi.Message): Message =
+        when (message.content.constructor) {
+            TdApi.MessageText.CONSTRUCTOR -> Message.MessageText(message)
+            TdApi.MessageAnimation.CONSTRUCTOR -> Message.MessageAnimation(message)
+            TdApi.MessageAudio.CONSTRUCTOR -> Message.MessageAudio(message)
+            TdApi.MessageDocument.CONSTRUCTOR -> Message.MessageDocument(message)
+            TdApi.MessagePhoto.CONSTRUCTOR -> Message.MessagePhoto(message)
+            TdApi.MessageExpiredPhoto.CONSTRUCTOR -> Message.MessageExpiredPhoto(message)
+            TdApi.MessageSticker.CONSTRUCTOR -> Message.MessageSticker(message)
+            TdApi.MessageVideo.CONSTRUCTOR -> Message.MessageVideo(message)
+            TdApi.MessageExpiredVideo.CONSTRUCTOR -> Message.MessageExpiredVideo(message)
+            TdApi.MessageVideoNote.CONSTRUCTOR -> Message.MessageVideoNote(message)
+            TdApi.MessageVoiceNote.CONSTRUCTOR -> Message.MessageVoiceNote(message)
+            TdApi.MessageLocation.CONSTRUCTOR -> Message.MessageLocation(message)
+            TdApi.MessageVenue.CONSTRUCTOR -> Message.MessageVenue(message)
+            TdApi.MessageContact.CONSTRUCTOR -> Message.MessageContact(message)
+            TdApi.MessageGame.CONSTRUCTOR -> Message.MessageGame(message)
+            TdApi.MessageInvoice.CONSTRUCTOR -> Message.MessageInvoice(message)
+            TdApi.MessageCall.CONSTRUCTOR -> Message.MessageCall(message)
+            TdApi.MessageBasicGroupChatCreate.CONSTRUCTOR -> Message.MessageBasicGroupChatCreate(message)
+            TdApi.MessageSupergroupChatCreate.CONSTRUCTOR -> Message.MessageSupergroupChatCreate(message)
+            TdApi.MessageChatChangeTitle.CONSTRUCTOR -> Message.MessageChatChangeTitle(message)
+            TdApi.MessageChatChangePhoto.CONSTRUCTOR -> Message.MessageChatChangePhoto(message)
+            TdApi.MessageChatDeletePhoto.CONSTRUCTOR -> Message.MessageChatDeletePhoto(message)
+            TdApi.MessageChatAddMembers.CONSTRUCTOR -> Message.MessageChatAddMembers(message)
+            TdApi.MessageChatJoinByLink.CONSTRUCTOR -> Message.MessageChatJoinByLink(message)
+            TdApi.MessageChatDeleteMember.CONSTRUCTOR -> Message.MessageChatDeleteMember(message)
+            TdApi.MessageChatUpgradeTo.CONSTRUCTOR -> Message.MessageChatUpgradeTo(message)
+            TdApi.MessageChatUpgradeFrom.CONSTRUCTOR -> Message.MessageChatUpgradeFrom(message)
+            TdApi.MessagePinMessage.CONSTRUCTOR -> Message.MessagePinMessage(message)
+            TdApi.MessageScreenshotTaken.CONSTRUCTOR -> Message.MessageScreenshotTaken(message)
+            TdApi.MessageChatSetTtl.CONSTRUCTOR -> Message.MessageChatSetTtl(message)
+            TdApi.MessageCustomServiceAction.CONSTRUCTOR -> Message.MessageCustomServiceAction(message)
+            TdApi.MessageGameScore.CONSTRUCTOR -> Message.MessageGameScore(message)
+            TdApi.MessagePaymentSuccessful.CONSTRUCTOR -> Message.MessagePaymentSuccessful(message)
+            TdApi.MessagePaymentSuccessfulBot.CONSTRUCTOR -> Message.MessagePaymentSuccessfulBot(message)
+            TdApi.MessageContactRegistered.CONSTRUCTOR -> Message.MessageContactRegistered(message)
+            TdApi.MessageWebsiteConnected.CONSTRUCTOR -> Message.MessageWebsiteConnected(message)
+            TdApi.MessagePassportDataSent.CONSTRUCTOR -> Message.MessagePassportDataSent(message)
+            TdApi.MessagePassportDataReceived.CONSTRUCTOR -> Message.MessagePassportDataReceived(message)
+            TdApi.MessageUnsupported.CONSTRUCTOR -> Message.MessageUnsupported(message)
+            else -> Message.MessageUnsupported(message)
         }
-    }
-
-    fun getVoiceNoteMessages(limit: Long = 20, query: String = "", senderId: Int): List<VoiceNoteMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterVoiceNote(), query, senderId).map { VoiceNoteMessage(it) }
-    }
-
-    fun getPhotoAndVideoMessages(limit: Long = 20, query: String = "", senderId: Int): List<Message> {
-        return getMessages(limit, TdApi.SearchMessagesFilterPhotoAndVideo(), query, senderId).map { Message(it) }
-    }
-
-    fun getUrlMessages(limit: Long = 20, query: String = "", senderId: Int): List<TextMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterUrl(), query, senderId).map { TextMessage(it) }
-    }
-
-    fun getChatPhotoMessages(limit: Long = 20, query: String = "", senderId: Int): List<PhotoMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterChatPhoto(), query, senderId).map { PhotoMessage(it) }
-    }
-
-    fun getCallMessages(limit: Long = 20, query: String = "", senderId: Int): List<CallMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterCall(), query, senderId).map { CallMessage(it) }
-    }
-
-    fun getMissedCallMessages(limit: Long = 20, query: String = "", senderId: Int): List<CallMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterMissedCall(), query, senderId).map { CallMessage(it) }
-    }
-
-    fun getVideoNoteMessages(limit: Long = 20, query: String = "", senderId: Int): List<VideoNoteMessage> {
-        return getMessages(limit, TdApi.SearchMessagesFilterVideoNote(), query, senderId).map { VideoNoteMessage(it) }
-    }
-
-    fun getVoiceAndVideoNoteMessages(limit: Long = 20, query: String = "", senderId: Int): List<Message> {
-        return getMessages(limit, TdApi.SearchMessagesFilterVoiceAndVideoNote(), query, senderId).map { Message(it) }
-    }
-
-    fun getMentionMessages(limit: Long = 20, query: String = "", senderId: Int): List<Message> {
-        return getMessages(limit, TdApi.SearchMessagesFilterMention(), query, senderId).map { Message(it) }
-    }
-
-    fun getUnreadMentionMessages(limit: Long = 20, query: String = "", senderId: Int): List<Message> {
-        return getMessages(limit, TdApi.SearchMessagesFilterUnreadMention(), query, senderId).map { Message(it) }
-    }
-
-    fun getMessagesWithoutFilter(limit: Long = 20, query: String = "", senderId: Int = 0): List<Message> {
-        return getMessages(limit, TdApi.SearchMessagesFilterEmpty(), query, senderId).map { Message(it) }
-    }
-
 
 }

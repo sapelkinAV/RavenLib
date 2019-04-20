@@ -3,6 +3,9 @@ package com.sapelkinav
 import com.beust.klaxon.Klaxon
 import com.sapelkinav.ravenlib.RavenLib
 import com.sapelkinav.ravenlib.client.TdlibParameters
+import com.sapelkinav.ravenlib.model.chat.PublicChatSearchResult.ChatFound
+import com.sapelkinav.ravenlib.model.chat.PublicChatSearchResult.ChatNotFound
+import com.sapelkinav.ravenlib.model.message.Message
 import com.sapelkinav.revenlib.entities.Config
 import org.drinkless.tdlib.TdApi
 import java.io.File
@@ -23,7 +26,7 @@ fun main() {
         databaseDirectory = "./${config.phone}"
     )
 
-    val ravenLib = RavenLib(
+    RavenLib(
         //Parameters
         tdlibParameters,
         //Function to get the phone
@@ -35,26 +38,36 @@ fun main() {
         },
         { "" }
 
-    )
+    ).use { ravenLib ->
+        ravenLib.errorEvents.subscribe {
+            println("Beda prikluchilas ${it.printStackTrace()}")
+        }
 
-    ravenLib.errorEvents.subscribe {
-        println("Beda prikluchilas ${it.printStackTrace()}")
+
+        val client = ravenLib.ravenClient
+        val chatRepository = ravenLib.chatRepository
+
+        val publicChatSearchResult = chatRepository.searchPublicChat("archiveOfAllMusic")
+
+        when (publicChatSearchResult) {
+
+            is ChatFound -> {
+                val chat = publicChatSearchResult.chat
+                val messages = chat.getMessages(messageTypeFilter = TdApi.SearchMessagesFilterAudio())
+                    .toList()
+                    .blockingGet()
+                messages.forEach { message ->
+                    println(message)
+                }
+            }
+
+            is ChatNotFound -> {
+                throw Exception()
+            }
+
+        }
+
     }
-
-
-    val client = ravenLib.ravenClient
-    val chatRepository = ravenLib.chatRepository
-
-    val allrockChannel = chatRepository.searchPublicChat("AllRock")
-
-    val ROOOOOOOOK = allrockChannel.getMessagesAsync(filter = TdApi.SearchMessagesFilterAudio())
-        .toList()
-        .blockingGet()
-
-    ROOOOOOOOK.forEach {
-        println(it)
-    }
-
 
 }
 

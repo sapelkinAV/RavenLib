@@ -85,6 +85,14 @@ class RavenLib(
         return chatRepository.getPrivateChats()
     }
 
+    fun terminateOtherSessions() {
+        ravenClient.tdCall(TdApi.TerminateAllOtherSessions(), {tdEvent ->
+           println(tdEvent)
+        }) {
+
+        }
+    }
+
     private fun waitUntilAuthorizationStateReady() {
 
         val authStateReady = authorizationEvents.filter { tdEvent ->

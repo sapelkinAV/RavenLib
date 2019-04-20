@@ -7,11 +7,11 @@ import org.drinkless.tdlib.TdApi
 import java.util.stream.Collectors
 import kotlin.streams.toList
 
+
 class ChatRepository(
     private val ravenClient: RavenClient,
     private val  errorEvents: Subject<Throwable>
 ) {
-
 
     fun getChatList(limit: Int = 200): List<Chat> {
         var offsetOrder = Long.MAX_VALUE
@@ -72,17 +72,21 @@ class ChatRepository(
         return getChatList(limit).stream().filter { chat -> chat.type is TdApi.ChatTypeSecret }.toList()
     }
 
-    fun searchPublicChat(supergroupTitle: String): Chat {
-
+    fun searchPublicChat(supergroupTitle: String): PublicChatSearchResult {
         return ravenClient.tdCall(TdApi.SearchPublicChat(supergroupTitle)) {
             if (it.constructor == TdApi.Error.CONSTRUCTOR) {
                 val error = it as TdApi.Error
-                 errorEvents.onNext(TelegramException(error.code, error.message))
+                TelegramException(error.code, error.message)
+                return@tdCall PublicChatSearchResult.ChatNotFound
             }
-            return@tdCall Chat(it as TdApi.Chat, ravenClient)
+            return@tdCall PublicChatSearchResult.ChatFound(Chat(it as TdApi.Chat, ravenClient))
         }
 
     }
 
+}
 
+sealed class PublicChatSearchResult {
+    data class ChatFound(val chat: Chat) : PublicChatSearchResult()
+    object ChatNotFound : PublicChatSearchResult()
 }
