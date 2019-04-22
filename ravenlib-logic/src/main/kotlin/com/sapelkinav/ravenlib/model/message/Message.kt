@@ -101,160 +101,160 @@ public sealed class Message(tdApiMessage:TdApi.Message)
 ) {
 
 
-    class MessageText(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageText(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
         get() = this.content as TdApi.MessageText
 
     }
-    class MessageAnimation(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageAnimation(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageAnimation
     }
-    class MessageAudio(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageAudio(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageAudio
     }
-    class MessageDocument(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageDocument(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageDocument
     }
-    class MessagePhoto(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessagePhoto(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessagePhoto
     }
-    class MessageExpiredPhoto(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageExpiredPhoto(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageExpiredPhoto
     }
-    class MessageSticker(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageSticker(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageSticker
     }
-    class MessageVideo(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageVideo(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageVideo
     }
-    class MessageExpiredVideo(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageExpiredVideo(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageExpiredVideo
     }
-    class MessageVideoNote(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageVideoNote(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageVideoNote
     }
-    class MessageVoiceNote(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageVoiceNote(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageVoiceNote
     }
-    class MessageLocation(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageLocation(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageLocation
     }
-    class MessageVenue(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageVenue(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageVenue
     }
-    class MessageContact(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageContact(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageContact
     }
-    class MessageGame(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageGame(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageGame
     }
-    class MessageInvoice(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageInvoice(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageInvoice
     }
-    class MessageCall(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageCall(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageCall
     }
-    class MessageBasicGroupChatCreate(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageBasicGroupChatCreate(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageBasicGroupChatCreate
     }
-    class MessageSupergroupChatCreate(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageSupergroupChatCreate(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageSupergroupChatCreate
     }
-    class MessageChatChangeTitle(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageChatChangeTitle(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageChatChangeTitle
     }
-    class MessageChatChangePhoto(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageChatChangePhoto(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageChatChangePhoto
     }
-    class MessageChatDeletePhoto(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageChatDeletePhoto(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageChatDeletePhoto
     }
-    class MessageChatAddMembers(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageChatAddMembers(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageChatAddMembers
     }
-    class MessageChatJoinByLink(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageChatJoinByLink(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageChatJoinByLink
     }
-    class MessageChatDeleteMember(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageChatDeleteMember(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageChatDeleteMember
     }
-    class MessageChatUpgradeTo(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageChatUpgradeTo(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageChatUpgradeTo
     }
-    class MessageChatUpgradeFrom(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageChatUpgradeFrom(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageChatUpgradeFrom
     }
-    class MessagePinMessage(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessagePinMessage(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessagePinMessage
     }
-    class MessageScreenshotTaken(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageScreenshotTaken(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageScreenshotTaken
     }
-    class MessageChatSetTtl(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageChatSetTtl(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageChatSetTtl
     }
-    class MessageCustomServiceAction(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageCustomServiceAction(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageCustomServiceAction
     }
-    class MessageGameScore(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageGameScore(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageGameScore
     }
-    class MessagePaymentSuccessful(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessagePaymentSuccessful(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessagePaymentSuccessful
     }
-    class MessagePaymentSuccessfulBot(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessagePaymentSuccessfulBot(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessagePaymentSuccessfulBot
     }
-    class MessageContactRegistered(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageContactRegistered(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageContactRegistered
     }
-    class MessageWebsiteConnected(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageWebsiteConnected(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageWebsiteConnected
     }
-    class MessagePassportDataSent(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessagePassportDataSent(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessagePassportDataSent
     }
-    class MessagePassportDataReceived(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessagePassportDataReceived(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessagePassportDataReceived
     }
-    class MessageUnsupported(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
+    public class MessageUnsupported(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
             get() = this.content as TdApi.MessageUnsupported
     }
