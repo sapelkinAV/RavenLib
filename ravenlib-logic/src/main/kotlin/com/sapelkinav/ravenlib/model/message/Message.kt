@@ -3,7 +3,7 @@ package com.sapelkinav.ravenlib.model.message
 import org.drinkless.tdlib.TdApi
 
 
-sealed class Message(tdApiMessage:TdApi.Message)
+public sealed class Message(tdApiMessage:TdApi.Message)
     :TdApi.Message(
         /**
          * Unique message identifier.
@@ -99,6 +99,8 @@ sealed class Message(tdApiMessage:TdApi.Message)
          */
         tdApiMessage.replyMarkup
 ) {
+
+
     class MessageText(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent
         get() = this.content as TdApi.MessageText
