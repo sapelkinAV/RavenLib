@@ -1,5 +1,6 @@
 package com.sapelkinav.ravenlib.model.message
 
+import com.sapelkinav.ravenlib.model.chat.Chat
 import org.drinkless.tdlib.TdApi
 
 
@@ -100,6 +101,7 @@ public sealed class Message(tdApiMessage:TdApi.Message)
         tdApiMessage.replyMarkup
 ) {
 
+    var chat:Chat? = null
 
     public class MessageText(tdApiMessage:TdApi.Message) : Message(tdApiMessage) {
         val messageContent

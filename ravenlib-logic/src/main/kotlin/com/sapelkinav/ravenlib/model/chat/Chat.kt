@@ -142,6 +142,8 @@ open class Chat(
             TdApi.MessagePassportDataReceived.CONSTRUCTOR -> Message.MessagePassportDataReceived(message)
             TdApi.MessageUnsupported.CONSTRUCTOR -> Message.MessageUnsupported(message)
             else -> Message.MessageUnsupported(message)
+        }.apply {
+            chat = this@Chat
         }
 
 }
